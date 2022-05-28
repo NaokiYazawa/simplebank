@@ -5,3 +5,14 @@
 # Entity Relationship Diagram
 
 ![EntityRelationshipDiagram](images/dbdiagram.jpg "EntityRelationshipDiagram")
+
+例えば、account1 から account2 へ $10 送金することを想定する。
+
+作成されるレコードは下記の三つ。
+
+1. 【transfers】
+   from_account_id：1、to_account_id：2、amount：10 という値が入ったレコード
+2. 【entries】
+   account_id：1、amount：-10 という値が入ったレコード
+3. 【entries】
+   account_id：2、amount：10 という値が入ったレコード
