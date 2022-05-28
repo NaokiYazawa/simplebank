@@ -15,7 +15,7 @@ const (
 )
 
 var testQueries *Queries
-var testDB *sql.DB
+var testDB *sql.DB // dbパッケージで再利用できるようにした
 
 func TestMain(m *testing.M) {
 	var err error

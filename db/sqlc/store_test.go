@@ -9,7 +9,7 @@ import (
 )
 
 func TestTransferTx(t *testing.T) {
-	store := NewStore(testDB)
+	store := NewStore(testDB) // testDB を再利用する
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)

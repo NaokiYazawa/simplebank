@@ -7,6 +7,10 @@ import (
 )
 
 // Store provides all functions to execute db queries and transactions
+// データベースへのクエリーやトランザクションを実行するためのすべての機能を提供する
+// Composition over inheritance
+// Inheritance の場合と違って、抽象化させるためのスーパークラス名や、継承ツリーの構成などに頭を悩まされることはありません。
+// Inheritance では、スーパークラスのコードを変更すると、その継承ツリーの下位クラス全体に影響があります。そのため、スーパークラスに新しい振る舞いを追加することは、意図しないエラーを生むリスクがあります。
 type Store struct {
 	*Queries
 	db *sql.DB
@@ -22,24 +26,29 @@ func NewStore(db *sql.DB) *Store {
 
 // execTx executes a function within a database transaction
 func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error { // TODO: context.Context について調べる
+	// 第二引数では、トランザクションの分離レベルを設定する
+	// 今回は、デフォルト値を使用するためnilとする
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
+	// 23行目のNew(db)と異なり、sql.Txオブジェクトを渡している
 	q := New(tx)
 	err = fn(q)
 	if err != nil {
+		// 失敗したらロールバックする
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
 		}
 		return err
 	}
-
+	// トランザクションをコミットする
 	return tx.Commit()
 }
 
 // TransferTxParams contains the input parameters of the transfer transaction
+// この構造体には、2つのアカウント間で送金するために必要な全ての入力パラメータが含まれている
 type TransferTxParams struct {
 	FromAccountID int64 `json:"from_account_id"`
 	ToAccountID   int64 `json:"to_account_id"`
@@ -47,6 +56,7 @@ type TransferTxParams struct {
 }
 
 // TransferTxResult is the result of the transfer transaction
+// この構造体には、残高が更新された後の結果が格納される
 type TransferTxResult struct {
 	Transfer    Transfers `json:"transfer"`
 	FromAccount Accounts  `json:"from_account"`

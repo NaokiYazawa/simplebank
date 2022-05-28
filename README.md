@@ -34,3 +34,27 @@
    （Multiple transactions can occur concurrently without leading to the inconsistency of the database state）
 4. **Durability**
    （This property ensures that once the transaction has completed execution, the updates and modifications to the database are stored in and written to disk and they persist even if a system failure occurs. These updates now become permanent and are stored in non-volatile memory. The effects of the transaction, thus, are never lost.）
+
+```sql
+BEGIN;
+
+INSERT INTO transfers (from_account_id, to_account_id, amount) VALUES (1, 2, 10) RETURNING *;
+-- 1つのテーブルへのINSERTが他のテーブルからのSELECTをブロックできるのはなぜか。
+-- 外部キー制約があるから
+-- 「FOR NO KEY UPDATE;」とする
+-- name: GetAccountForUpdate :one
+-- SELECT * FROM accounts
+-- WHERE id = $1 LIMIT 1
+-- FOR NO KEY UPDATE;
+
+INSERT INTO entries (account_id, amount) VALUES (1, -10) RETURNING *;
+INSERT INTO entries (account_id, amount) VALUES (2, 10) RETURNING *;
+
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE;
+UPDATE accounts SET balance = 90 WHERE id = 1 RETURNING *;
+
+SELECT * FROM accounts WHERE id = 2 FOR UPDATE;
+UPDATE accounts SET balance = 110 WHERE id = 2 RETURNING *;
+
+ROLLBACK;
+```
