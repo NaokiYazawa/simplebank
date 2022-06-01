@@ -6,26 +6,32 @@ import (
 	"fmt"
 )
 
-// Store provides all functions to execute db queries and transactions
+// Store defines all functions to execute db queries and transactions
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+}
+
 // データベースへのクエリーやトランザクションを実行するためのすべての機能を提供する
 // Composition over inheritance
 // Inheritance の場合と違って、抽象化させるためのスーパークラス名や、継承ツリーの構成などに頭を悩まされることはありません。
 // Inheritance では、スーパークラスのコードを変更すると、その継承ツリーの下位クラス全体に影響があります。そのため、スーパークラスに新しい振る舞いを追加することは、意図しないエラーを生むリスクがあります。
-type Store struct {
-	*Queries
+// SQLStore provides all functions to execute SQL queries and transactions
+type SQLStore struct {
 	db *sql.DB
+	*Queries
 }
 
 // NewStore creates a new store
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // execTx executes a function within a database transaction
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error { // TODO: context.Context について調べる
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error { // TODO: context.Context について調べる
 	// 第二引数では、トランザクションの分離レベルを設定する
 	// 今回は、デフォルト値を使用するためnilとする
 	tx, err := store.db.BeginTx(ctx, nil)
@@ -69,7 +75,7 @@ var txKey = struct{}{}
 
 // TransferTx performs a money transfer from one account to the other.
 // It creates the transfer, add account entries, and update accounts' balance within a database transaction
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
