@@ -66,3 +66,16 @@ Gin is an HTTP web framework written in Go that is immensely popular with over 5
 少ないコード量で、バリデーションチェックを行うことができる。
 
 # What is Viper?
+
+Viper is a complete configuration solution for Go applications including 12-Factor apps. It is designed to work within an application, and can handle all types of configuration needs and formats
+
+# Why mock database?
+
+1. Independent tests
+   isolate tests data to avoid conflicts
+
+2. Faster test
+   reduce a lot of time taking to the database
+
+3. 100% coverage
+   easily setup edge cases: unexpected errors
