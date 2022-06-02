@@ -11,7 +11,7 @@ import (
 
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency" binding:"required,currency"` // v.RegisterValidation("currency", validCurrency) が由来
 } // アカウント作成時は残高が 0 であるため、Balance は除いた
 
 func (server *Server) createAccount(ctx *gin.Context) {
