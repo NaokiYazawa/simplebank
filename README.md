@@ -79,3 +79,12 @@ Viper is a complete configuration solution for Go applications including 12-Fact
 
 3. 100% coverage
    easily setup edge cases: unexpected errors
+
+# What's the problem of JWT?
+
+1. Weak algorithms
+   Give developers too many algorithms to choose
+   Some algorithms are known to be vulnerable
+
+2. Trivial Forgery
+   Set "alg" header to "none"
